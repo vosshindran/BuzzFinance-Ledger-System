@@ -223,7 +223,7 @@ class Main{
         System.out.println("== Debit ==");
 
         // Check if this is user's first time using savings
-        if (LedgerCentral.savingsPercentageMap.get(email) != 0.0) {
+        if (LedgerCentral.savingsPercentageMap.get(email) == 0.0) {
             System.out.print("Would you like to activate automatic savings? (10% of deposits) [Y/N]: ");
             String response = input.nextLine().trim().toUpperCase();
 
