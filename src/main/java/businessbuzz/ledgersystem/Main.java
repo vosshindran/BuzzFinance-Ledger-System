@@ -73,8 +73,10 @@ class Main{
         System.out.print("Password: ");
         String password = input.nextLine();
 
+
         if (LedgerCentral.userCredentialsNew.containsKey(email) && BCrypt.checkpw(password, LedgerCentral.userCredentialsNew.get(email))) {
             System.out.println("\nLogin Successful!!!");
+            checkLoanReminder(email); //display loan reminder
             dashboard (email, input);
         } else {
             System.out.println("Invalid email or password. If you don't have an account, you should register first.");
@@ -164,6 +166,7 @@ class Main{
                 System.out.printf("Loan: $%.2f (Outstanding: $%.2f)\n", LedgerCentral.loansMap.get(email).getPrincipalAmount(), LedgerCentral.loansMap.get(email).getOutstandingBalance());
 
             }
+            checkLoanReminder(email);
             System.out.println("\n== Transaction ==");
             System.out.println("1. Debit");
             System.out.println("2. Credit");
@@ -519,6 +522,17 @@ class Main{
             case 1 -> applyLoan(input, email);
             case 2 -> repayLoan(input, email);
             default -> System.out.println("Invalid option. Please try again.");
+        }
+    }
+    //checks loan
+    public static void checkLoanReminder(String email) {
+        if (LedgerCentral.loansMap.containsKey(email)) {
+            LoanData loan = LedgerCentral.loansMap.get(email);
+            if (loan.getOutstandingBalance() > 0) { // Only display reminder if there's an outstanding loan
+                System.out.println("\n** Reminder: You have an outstanding loan! **");
+                System.out.printf("Loan Amount: $%.2f\n", loan.getOutstandingBalance());
+                System.out.printf("Repayment Due Date: %s\n", loan.getCreationDate().plusMonths(loan.getRepaymentPeriod()));
+            }
         }
     }
 
