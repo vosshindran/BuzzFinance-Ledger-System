@@ -1,6 +1,6 @@
 package businessbuzz.ledgersystem;
 
-//File I/O for Data Storage
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
@@ -136,7 +136,7 @@ class Main{
         LedgerCentral.accountBalanceMap.put(email, 0.0);
         LedgerCentral.savingsPercentageMap.put(email, 0.0);
         LedgerCentral.savingsMap.put(email, 0.0);
-        LedgerCentral.transactionsMap.put(email,new ArrayList<>()); //null arraylist
+        LedgerCentral.transactionsMap.put(email, new ArrayList<>(Arrays.asList(new Transaction())));
         LedgerCentral.lastTransferDateMap.put(email, LocalDate.now());
         LedgerCentral.loansMap.put(email, new LoanData());
 
@@ -368,11 +368,11 @@ class Main{
     }
 
     public static void activateSavings(Scanner input, String email) {
-        System.out.print("Are your sure you want to activate your savings? (Y/N): ");
+        System.out.print("Are your sure you want to manage your savings? (Y/N): ");
         String response = input.nextLine().toUpperCase();
 
         if (response.equals("Y")) {
-            System.out.print("Enter the percentage you wish to debut from the next debit (%): ");
+            System.out.print("Enter the percentage you wish to debut from the next debit (%) \nor enter 0 if you wish to deactivate savings: ");
             //Akin to savingsPercentage = input.nextDouble();
             double currentSavingsPercentage = input.nextDouble(); //Please rmb, that savingsPercentages are read in percentage, but later stored in hashmap as decimal point form (like 0.95)
 
@@ -387,7 +387,12 @@ class Main{
             LedgerCentral.writeSavingsPercentages();
 
             input.nextLine(); //Eat up next line
-            System.out.println("Savings Activated!\n");
+            if (currentSavingsPercentage == 0.0) {
+                System.out.println("Savings Deactivated!\n");
+            } else if (currentSavingsPercentage > 0.0) {
+                System.out.println("Savings Activated!\n");
+            }
+
         }
     }
 
@@ -486,7 +491,8 @@ class Main{
         double newBalance = currentLoan.getOutstandingBalance() - repayment;
         if (newBalance <= 0) {
             System.out.println("Loan fully repaid.");
-            LedgerCentral.loansMap.remove(email);
+
+            LedgerCentral.loansMap.put(email, new LoanData());
             LedgerCentral.clearLoans();
             LedgerCentral.writeLoans();
             return;

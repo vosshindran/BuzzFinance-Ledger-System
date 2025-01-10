@@ -8,6 +8,13 @@ class Transaction {
     private final String description;
     private final LocalDate date;
 
+    public Transaction(){
+        this.type = " ";
+        this.amount = 0.0;
+        this.description = "Account Created.";
+        this.date = LocalDate.now();
+    }
+
     public Transaction(String type, double amount, String description, LocalDate date) { //const.
         this.type = type;
         this.amount = amount;
