@@ -1,6 +1,8 @@
 package businessbuzz.ledgersystem;
 
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
@@ -88,9 +90,6 @@ class Main{
         }
     }
 
-
-
-
     public static void register(Scanner input) {
         System.out.println("\n== Please fill in your details ==");
 
@@ -172,15 +171,16 @@ class Main{
             System.out.println("4. Savings");
             System.out.println("5. Credit Loan");
             System.out.println("6. Deposit Interest Predictor");
-            System.out.println("7. Logout");
+            System.out.println("7. Transaction Analysis");
+            System.out.println("8. Logout");
 
             System.out.print("> ");
 
             int option = input.nextInt();
             input.nextLine(); // Clears the newline left in the buffer by nextInt() to prevent skipping the next user input
 
-            if (option < 1 || option > 7) {
-                System.out.println("Please select a valid option (1-7)");
+            if (option < 1 || option > 8) {
+                System.out.println("Please select a valid option (1-8)");
                 continue;
             }
 
@@ -204,11 +204,92 @@ class Main{
                     depositInterestPredictor(input, email);
                     break;
                 case 7:
+                    showTransactionAnalysis(input, email);
+                    break;
+                case 8:
                     System.out.println("Thank you for using Ledger System.");
                     System.exit(0);
                 default:
                     System.out.println("Invalid choice. Please, try again.");
             }
+        }
+    }
+    public static void showTransactionAnalysis(Scanner input, String email) {
+        while (true) {
+            System.out.println("\n=== Transaction Analysis ===");
+            System.out.println("1. View transactions by type (debit/credit)");
+            System.out.println("2. View transactions by date range");
+            System.out.println("3. View transactions sorted by amount (highest first)");
+            System.out.println("4. View transactions sorted by date (newest first)");
+            System.out.println("5. Return to main menu");
+
+            System.out.print("Choose an option: ");
+            int choice = input.nextInt();
+            input.nextLine();
+
+            FilterAndSortTransactions ledger = new FilterAndSortTransactions();
+            for (Transaction t : LedgerCentral.transactionsMap.get(email)) {
+                ledger.addTransaction(email, t);
+            }
+
+            List<Transaction> results;
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter type (debit/credit): ");
+                    String type = input.nextLine().toLowerCase();
+                    results = ledger.filterByType(email, type);
+                    displayTransactions(results, "Transactions of type: " + type);
+                    break;
+
+                case 2:
+                    try {
+                        System.out.print("Enter start date (YYYY-MM-DD): ");
+                        LocalDate startDate = LocalDate.parse(input.nextLine());
+                        System.out.print("Enter end date (YYYY-MM-DD): ");
+                        LocalDate endDate = LocalDate.parse(input.nextLine());
+                        results = ledger.filterByDateRange(email, startDate, endDate);
+                        displayTransactions(results, "Transactions between " + startDate + " and " + endDate);
+                    } catch (DateTimeParseException e) {
+                        System.out.println("Invalid date format. Please use YYYY-MM-DD format.");
+                    }
+                    break;
+
+                case 3:
+                    results = ledger.sortByAmountDescending(email);
+                    displayTransactions(results, "Transactions sorted by amount (highest first)");
+                    break;
+
+                case 4:
+                    results = ledger.sortByDateDescending(email);
+                    displayTransactions(results, "Transactions sorted by date (newest first)");
+                    break;
+
+                case 5:
+                    return;
+
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+        }
+    }
+
+    private static void displayTransactions(List<Transaction> transactions, String header) {
+        System.out.println("\n=== " + header + " ===");
+        if (transactions.isEmpty()) {
+            System.out.println("No transactions found.");
+            return;
+        }
+
+        System.out.printf("%-12s %-12s %-30s %-10s%n", "Date", "Type", "Description", "Amount");
+        System.out.println("-".repeat(65));
+
+        for (Transaction t : transactions) {
+            System.out.printf("%-12s %-12s %-30s $%-10.2f%n",
+                    t.getDate(),
+                    t.getType(),
+                    t.getDescription(),
+                    t.getAmount());
         }
     }
 
