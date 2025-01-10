@@ -71,7 +71,7 @@ class Main{
         System.out.print("Password: ");
         String password = input.nextLine();
 
-        if (LedgerCentral.userCredentialsNew.containsKey(email) && LedgerCentral.userCredentialsNew.get(email).equals(password)) {
+        if (LedgerCentral.userCredentialsNew.containsKey(email) && BCrypt.checkpw(password, LedgerCentral.userCredentialsNew.get(email))) {
             System.out.println("\nLogin Successful!!!");
             dashboard (email, input);
         } else {
@@ -129,8 +129,9 @@ class Main{
             System.out.println("Passwords do not match.");
             return;
         }
-
-
+        
+        password=BCrypt.hashpw(password, BCrypt.gensalt());
+        
         LedgerCentral.userCredentialsNew.put(email, password);
         LedgerCentral.usernameStorage.put(email, name);
         LedgerCentral.accountBalanceMap.put(email, 0.0);
