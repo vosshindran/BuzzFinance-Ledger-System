@@ -479,6 +479,16 @@ class Main{
             System.out.println("No active loan to repay.");
             return;
         }
+
+        double interest = LedgerCentral.loansMap.get(email).getPrincipalAmount()
+                * LedgerCentral.loansMap.get(email).getInterestRate()
+                * LedgerCentral.loansMap.get(email).getRepaymentPeriod();
+        double totalRepayment = LedgerCentral.loansMap.get(email).getPrincipalAmount()
+                + interest;
+        double monthlyInstallment = totalRepayment / LedgerCentral.loansMap.get(email).getRepaymentPeriod();
+
+        System.out.printf("%nOutstanding balance: $%.2f%n", LedgerCentral.loansMap.get(email).getOutstandingBalance());
+        System.out.printf("Monthly Instalment: $%.2f%n" , monthlyInstallment);
         System.out.print("Enter repayment amount: ");
         double repayment = input.nextDouble();
         input.nextLine();
