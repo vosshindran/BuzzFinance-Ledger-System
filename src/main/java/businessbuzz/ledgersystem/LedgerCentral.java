@@ -116,7 +116,6 @@ class LedgerCentral {
                 System.out.println("Error creating savings_percentages.csv file.");
             }
         }
-
     }
 
     public static void loadUserData(){
