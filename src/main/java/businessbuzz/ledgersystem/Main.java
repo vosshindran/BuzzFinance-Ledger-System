@@ -313,6 +313,7 @@ class Main{
             String response = input.nextLine().trim().toUpperCase();
 
             if (response.equals("Y")) {
+                System.out.println("Savings will be returned to balance automatically after the first debit after the current month ends.");
                 LedgerCentral.savingsPercentageMap.put(email, 0.10); // 10% savings rate
                 boolean savingsActivated = true;
             } else {
@@ -427,17 +428,15 @@ class Main{
     }
 
     public static void transferSavings(String email) { //This method transfers savings FROM savings back TO balance
-        if (LocalDate.now().getMonth() != LedgerCentral.lastTransferDateMap.get(email).getMonth()) { //cannot transfer savings TO acc.balance in the same month -- to promote financial discipline
-            //Akin to balance += savings;
+        if (LocalDate.now().getMonth() != LedgerCentral.lastTransferDateMap.get(email).getMonth()) {//cannot transfer savings TO acc.balance in the same month -- to promote financial discipline
+
             double currentBalance = LedgerCentral.accountBalanceMap.get(email);
             double currentSavings = LedgerCentral.savingsMap.get(email);
             currentBalance = currentBalance + currentSavings;
             LedgerCentral.accountBalanceMap.put(email, currentBalance);
             LedgerCentral.clearAccountBalances();
             LedgerCentral.writeAccountBalances();
-            //
 
-            //Akin to savings = 0;
             LedgerCentral.savingsMap.put(email,0.0);
             LedgerCentral.clearSavings();
             LedgerCentral.writeSavings();
@@ -446,17 +445,16 @@ class Main{
             LedgerCentral.clearLastTransferDates();
             LedgerCentral.writeLastTransferDates();
 
-            //
-             //Akin to lastTransferDate = LocalDate.now();
             System.out.println("Monthly Savings Transferred to Balance.");
         }
     }
 
     public static void activateSavings(Scanner input, String email) {
-        System.out.print("Are your sure you want to manage your savings? (Y/N): ");
+        System.out.print("Are you sure you want to manage your savings? (Y/N): ");
         String response = input.nextLine().toUpperCase();
 
         if (response.equals("Y")) {
+            System.out.println("Savings will be returned to balance automatically after the first debit after the current month ends.\n");
             System.out.print("Enter the percentage you wish to debut from the next debit (%) \nor enter 0 if you wish to deactivate savings: ");
             //Akin to savingsPercentage = input.nextDouble();
             double currentSavingsPercentage = input.nextDouble(); //Please rmb, that savingsPercentages are read in percentage, but later stored in hashmap as decimal point form (like 0.95)
@@ -473,9 +471,9 @@ class Main{
 
             input.nextLine(); //Eat up next line
             if (currentSavingsPercentage == 0.0) {
-                System.out.println("Savings Deactivated!\n");
+                System.out.println("\nSavings Deactivated!\n");
             } else if (currentSavingsPercentage > 0.0) {
-                System.out.println("Savings Activated!\n");
+                System.out.println("\nSavings Activated!\n");
             }
 
         }
