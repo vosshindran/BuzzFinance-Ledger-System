@@ -1,5 +1,6 @@
 package businessbuzz.ledgersystem;
 
+import java.io.IOException;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.time.LocalDate;
+import java.io.FileWriter;
 
 class Main{
     static final double TRANSACTION_LIMIT = 10000.0;
@@ -18,7 +20,7 @@ class Main{
 //      troubleshoot(input);
 
         System.out.println("\n== BuzzFinance Ledger System ==");
-        System.out.println("Business Buzz \u00A9 2025\n");
+        System.out.println("Business Buzz © 2025\n");
         
         while (true) {
             System.out.println("Login or Register: ");
@@ -478,13 +480,13 @@ class Main{
 
         }
     }
-
     public static void displayHistory(String email) {
         if (LedgerCentral.transactionsMap.get(email) == null || LedgerCentral.transactionsMap.get(email).isEmpty()) {
             System.out.println("No transactions recorded yet for this account.");
             return;
         }
 
+        // Display console output
         System.out.println("== Transaction History ==");
         System.out.printf("%-15s %-25s %-15s %-15s %-15s\n", "Date", "Description", "Debit", "Credit", "Balance");
         System.out.println("-----------------------------------------------------------------------------------------");
@@ -492,20 +494,74 @@ class Main{
         ArrayList<Transaction> transactions = LedgerCentral.transactionsMap.get(email);
         double balanceProgression = 0.0;
 
-        for (Transaction t : transactions) {
-            double amount = t.getAmount();
-            String debit = t.getType().equals("debit") ? String.format("$ %.2f", amount) : "";
-            String credit = t.getType().equals("credit") ? String.format("$ %.2f", amount) : "";
-            balanceProgression = t.getType().equals("credit") ?
-                    balanceProgression - amount :
-                    balanceProgression  + amount;
+        // Handle both console display and CSV export
+        try {
+            String fileName = "transaction_history_" + LedgerCentral.usernameStorage.get(email) + ".csv";
+            FileWriter writer = new FileWriter(fileName);
+            writer.write("Date,Description,Debit,Credit,Balance\n");
 
-            System.out.printf("%-15s %-25s %-15s %-15s $ %.2f\n",
-                    t.getDate(), t.getDescription(), debit, credit, balanceProgression);
+            for (Transaction t : transactions) {
+                double amount = t.getAmount();
+                String debit = t.getType().equals("debit") ? String.format("%.2f", amount) : "";
+                String credit = t.getType().equals("credit") ? String.format("%.2f", amount) : "";
+                balanceProgression = t.getType().equals("credit") ?
+                        balanceProgression - amount :
+                        balanceProgression + amount;
+
+                // Console output
+                System.out.printf("%-15s %-25s %-15s %-15s $ %.2f\n",
+                        t.getDate(), t.getDescription(),
+                        debit.isEmpty() ? "" : "$ " + debit,
+                        credit.isEmpty() ? "" : "$ " + credit,
+                        balanceProgression);
+
+                // CSV output
+                writer.write(String.format("%s,%s,%s,%s,%.2f\n",
+                        t.getDate(),
+                        t.getDescription(),
+                        debit,
+                        credit,
+                        balanceProgression));
+            }
+
+            writer.close();
+            System.out.printf("\nAmount Saved: $ %.2f\nNew balance after deducting savings: $ %.2f\n",
+                    LedgerCentral.savingsMap.get(email),
+                    LedgerCentral.accountBalanceMap.get(email));
+            System.out.println("File Exported: " + fileName);
+
+        } catch (IOException e) {
+            System.out.println("Error exporting transactions: " + e.getMessage());
         }
-        System.out.printf("\nAmount Saved: $ %.2f\nNew balance after deducting savings: $ %.2f\n", LedgerCentral.savingsMap.get(email), LedgerCentral.accountBalanceMap.get(email));
-
     }
+
+//    public static void displayHistory(String email) {
+//        if (LedgerCentral.transactionsMap.get(email) == null || LedgerCentral.transactionsMap.get(email).isEmpty()) {
+//            System.out.println("No transactions recorded yet for this account.");
+//            return;
+//        }
+//
+//        System.out.println("== Transaction History ==");
+//        System.out.printf("%-15s %-25s %-15s %-15s %-15s\n", "Date", "Description", "Debit", "Credit", "Balance");
+//        System.out.println("-----------------------------------------------------------------------------------------");
+//
+//        ArrayList<Transaction> transactions = LedgerCentral.transactionsMap.get(email);
+//        double balanceProgression = 0.0;
+//
+//        for (Transaction t : transactions) {
+//            double amount = t.getAmount();
+//            String debit = t.getType().equals("debit") ? String.format("$ %.2f", amount) : "";
+//            String credit = t.getType().equals("credit") ? String.format("$ %.2f", amount) : "";
+//            balanceProgression = t.getType().equals("credit") ?
+//                    balanceProgression - amount :
+//                    balanceProgression  + amount;
+//
+//            System.out.printf("%-15s %-25s %-15s %-15s $ %.2f\n",
+//                    t.getDate(), t.getDescription(), debit, credit, balanceProgression);
+//        }
+//        System.out.printf("\nAmount Saved: $ %.2f\nNew balance after deducting savings: $ %.2f\n", LedgerCentral.savingsMap.get(email), LedgerCentral.accountBalanceMap.get(email));
+//
+//    }
 
     public static void creditLoan(Scanner input, String email) {
         loanOverdueCheck(email);
@@ -661,10 +717,10 @@ class Main{
         double totalInterest;
 
         switch (period) {
-            case "day" -> totalInterest = LedgerCentral.accountBalanceMap.get(email) * (Math.pow(1 + rate/365, duration) - 1);
-            case "month" -> totalInterest = LedgerCentral.accountBalanceMap.get(email) * (Math.pow(1 + rate/12, duration) - 1);
-            case "annual" -> totalInterest = LedgerCentral.accountBalanceMap.get(email) *  (Math.pow(1 + rate, duration) - 1);
-            default -> totalInterest = LedgerCentral.accountBalanceMap.get(email) * (Math.pow(1 + rate/12, duration) - 1);
+            case "month" -> totalInterest = (LedgerCentral.accountBalanceMap.get(email) * rate) / 12;
+            case "annual" -> totalInterest = LedgerCentral.accountBalanceMap.get(email) * rate;
+            case "day" -> totalInterest = (LedgerCentral.accountBalanceMap.get(email) * rate) / 365;
+            default -> totalInterest = (LedgerCentral.accountBalanceMap.get(email) * rate) / 12;
         }
 
 
