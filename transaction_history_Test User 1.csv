@@ -1,0 +1,6 @@
+Date,Description,Debit,Credit,Balance
+2025-01-15,Account Created.,,,0.00
+2025-01-15,Test Debit 1,500.00,,500.00
+2025-01-15,Test Credit 1,,200.00,300.00
+2025-01-15,Savings Full,500.00,,800.00
+2025-01-15,Test Debit After Savings,700.00,,1500.00

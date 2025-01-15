@@ -117,6 +117,11 @@ class Main{
             return;
         }
 
+        if (LedgerCentral.userCredentialsNew.containsKey(email)) {
+            System.out.println("Email already registered.");
+            return;
+        }
+
 
         System.out.print("Password: ");
         String password = input.nextLine();
