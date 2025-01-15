@@ -67,7 +67,7 @@ class LedgerCentral {
         if (!loansFile.exists()) {
             try {
                 loansFile.createNewFile();
-            } catch (Exception e) {
+            } catch (IOException e) {
                 System.out.println("Error creating loans.csv file.");
             }
         }
@@ -76,7 +76,7 @@ class LedgerCentral {
         if (!savingsFile.exists()) {
             try {
                 savingsFile.createNewFile();
-            } catch (Exception e) {
+            } catch (IOException e) {
                 System.out.println("Error creating savings.csv file.");
             }
         }

@@ -164,10 +164,11 @@ class Main{
             System.out.printf("\n== Welcome, %s ==\n", LedgerCentral.usernameStorage.get(email)); // Print the welcome message with the user's name by formatting the string with their registered name from the HashMap
             System.out.printf("Balance: $%.2f\n", LedgerCentral.accountBalanceMap.get(email));
             System.out.printf("Savings: $%.2f\n", LedgerCentral.savingsMap.get(email));
+
             if (LedgerCentral.loansMap.containsKey(email)) {
                 System.out.printf("Loan: $%.2f (Outstanding: $%.2f)\n", LedgerCentral.loansMap.get(email).getPrincipalAmount(), LedgerCentral.loansMap.get(email).getOutstandingBalance());
-
             }
+
             checkLoanReminder(email);
             System.out.println("\n== Transaction ==");
             System.out.println("1. Debit");
@@ -333,7 +334,7 @@ class Main{
         String description = input.nextLine();
 
         if (amount <= 0) {
-            System.out.println("Invalid amount. Amount must be positive." + TRANSACTION_LIMIT);
+            System.out.println("Invalid amount. Amount must be positive.");
             return;
         }
         if (amount > TRANSACTION_LIMIT) {
@@ -508,14 +509,12 @@ class Main{
                         balanceProgression - amount :
                         balanceProgression + amount;
 
-                // Console output
                 System.out.printf("%-15s %-25s %-15s %-15s $ %.2f\n",
                         t.getDate(), t.getDescription(),
                         debit.isEmpty() ? "" : "$ " + debit,
                         credit.isEmpty() ? "" : "$ " + credit,
                         balanceProgression);
 
-                // CSV output
                 writer.write(String.format("%s,%s,%s,%s,%.2f\n",
                         t.getDate(),
                         t.getDescription(),
@@ -564,7 +563,7 @@ class Main{
 //    }
 
     public static void creditLoan(Scanner input, String email) {
-        loanOverdueCheck(email);
+//        loanOverdueCheck(email);
         System.out.println("\n== Credit Loan ==");
         System.out.println("1. Apply for Loan");
         System.out.println("2. Repay Loan");
@@ -717,10 +716,10 @@ class Main{
         double totalInterest;
 
         switch (period) {
-            case "month" -> totalInterest = (LedgerCentral.accountBalanceMap.get(email) * rate) / 12;
-            case "annual" -> totalInterest = LedgerCentral.accountBalanceMap.get(email) * rate;
-            case "day" -> totalInterest = (LedgerCentral.accountBalanceMap.get(email) * rate) / 365;
-            default -> totalInterest = (LedgerCentral.accountBalanceMap.get(email) * rate) / 12;
+            case "month" -> totalInterest = (LedgerCentral.accountBalanceMap.get(email) * rate * duration) / 12;
+            case "annual" -> totalInterest = LedgerCentral.accountBalanceMap.get(email) * rate * duration;
+            case "day" -> totalInterest = (LedgerCentral.accountBalanceMap.get(email) * rate * duration) / 365;
+            default -> totalInterest = (LedgerCentral.accountBalanceMap.get(email) * rate * duration) / 12;
         }
 
 
